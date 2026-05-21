@@ -1,24 +1,27 @@
-# BGV Platform - Backend
+# BGV Platform - Full Stack Background Verification System
 
-A comprehensive Background Verification (BGV) platform backend built with Node.js, TypeScript, Express, and Prisma ORM.
+A comprehensive, production-ready Background Verification (BGV) platform with a modern Next.js frontend and robust Node.js/Express backend. Designed for seamless deployment on Vercel with integrated database, authentication, and verification services.
 
 ## 📋 Table of Contents
 
 - [Overview](#overview)
 - [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Configuration](#configuration)
-- [Project Structure](#project-structure)
-- [API Endpoints](#api-endpoints)
 - [Running the Application](#running-the-application)
-- [Testing](#testing)
-- [Database](#database)
+- [Deployment](#deployment)
+- [API Endpoints](#api-endpoints)
 - [Contributing](#contributing)
 
 ## 🎯 Overview
 
-The BGV Platform Backend is a robust API service designed to handle background verification processes. It provides authentication, candidate management, verification workflows, reporting, and dashboard functionality with secure endpoints protected by JWT authentication.
+BGV Platform is a full-stack background verification system that streamlines the process of conducting background checks on candidates. It features a responsive web interface built with Next.js and a powerful API backend built with Express and Prisma, providing secure authentication, candidate management, and verification workflows.
+
+**Live Demo**: [Deployed on Vercel](https://bgv-platform.vercel.app)  
+**GitHub**: [Aditya-Prakash14/BackgroudCheck](https://github.com/Aditya-Prakash14/BackgroudCheck)
 
 ## ✨ Features
 
@@ -194,144 +197,285 @@ backend/
 | GET | `/api/reports/:id` | Get report details | Yes |
 | GET | `/api/reports` | List all reports | Yes |
 
-## 🏃 Running the Application
+## 🛠 Tech Stack
 
-### Development
+### Frontend
+- **Next.js 16** - React framework for production
+- **TypeScript** - Type-safe JavaScript
+- **Tailwind CSS** - Utility-first CSS framework
+- **React Hook Form** - Performant form library
+- **Zod** - TypeScript-first schema validation
+- **Zustand** - State management
+- **Recharts** - Composable charting library
+
+### Backend
+- **Node.js** - JavaScript runtime
+- **Express.js** - Web framework
+- **TypeScript** - Type-safe JavaScript
+- **Prisma ORM** - Type-safe database client
+- **PostgreSQL** - Relational database
+- **JWT** - Authentication tokens
+- **Jest** - Testing framework
+
+### Infrastructure
+- **Vercel** - Frontend & API deployment
+- **PostgreSQL** - Managed database
+- **GitHub** - Version control
+
+## 📁 Project Structure
+
+```
+bgv-platform/
+├── frontend/                  # Next.js frontend application
+│   ├── src/
+│   │   ├── app/              # Next.js app directory
+│   │   ├── components/       # Reusable React components
+│   │   ├── services/         # API client services
+│   │   ├── store/            # Zustand state management
+│   │   └── validations/      # Zod schema validation
+│   ├── package.json
+│   ├── next.config.ts
+│   ├── tsconfig.json
+│   └── README.md
+│
+├── backend/                   # Express.js API backend
+│   ├── src/
+│   │   ├── app.ts            # Express app configuration
+│   │   ├── server.ts         # Server entry point
+│   │   ├── config/           # Configuration files
+│   │   ├── controllers/      # Route handlers
+│   │   ├── routes/           # API routes
+│   │   ├── services/         # Business logic
+│   │   ├── middleware/       # Express middleware
+│   │   ├── prisma/           # Prisma client
+│   │   ├── utils/            # Utility functions
+│   │   └── __tests__/        # Test files
+│   ├── prisma/
+│   │   ├── schema.prisma     # Database schema
+│   │   ├── seed.ts           # Seed script
+│   │   └── migrations/       # Database migrations
+│   ├── package.json
+│   ├── tsconfig.json
+│   ├── jest.config.ts
+│   └── README.md
+│
+├── vercel.json                # Vercel configuration
+├── .vercelignore             # Files to ignore in Vercel build
+├── .gitignore                # Git ignore rules
+└── README.md                 # This file
+```
+
+## 🚀 Deployment
+
+### Vercel Deployment (Recommended)
+
+The project is optimized for Vercel deployment with zero-config setup.
+
+#### Prerequisites
+- GitHub account with the repository
+- Vercel account (free tier available)
+- PostgreSQL database (Vercel Postgres or external)
+
+#### Step-by-Step Deployment
+
+1. **Push code to GitHub**
+   ```bash
+   git push origin main
+   ```
+
+2. **Connect to Vercel**
+   - Go to [vercel.com](https://vercel.com)
+   - Click "Add New..." → "Project"
+   - Select your GitHub repository
+   - Click "Import"
+
+3. **Configure Environment Variables**
+   - In Vercel Dashboard → Project Settings → Environment Variables
+   - Add the following:
+     ```
+     DATABASE_URL=postgresql://...
+     JWT_SECRET=your-secret-key
+     AADHAAR_API_URL=your-api-url
+     PAN_API_URL=your-api-url
+     FRONTEND_URL=https://your-domain.vercel.app
+     NODE_ENV=production
+     ```
+
+4. **Deploy**
+   - Click "Deploy"
+   - Wait for build and deployment to complete
+   - Your app is live!
+
+#### Auto-Deployment
+Every push to `main` branch automatically triggers a new deployment.
+
+#### Custom Domain
+1. Go to Project Settings → Domains
+2. Add your custom domain
+3. Follow DNS configuration instructions
+
+### Local Development
+
+#### Prerequisites
+- Node.js 16+
+- PostgreSQL running locally or via Docker
+- Git
+
+#### Setup
 
 ```bash
+# Clone repository
+git clone git@github.com:Aditya-Prakash14/BackgroudCheck.git
+cd BackgroudCheck
+
+# Install backend dependencies
+cd backend
+npm install
+
+# Install frontend dependencies
+cd ../frontend
+npm install
+```
+
+#### Environment Setup
+
+**Backend (.env)**
+```bash
+cd backend
+cp .env.example .env
+# Edit .env with your database credentials
+```
+
+**Frontend (.env.local)**
+```bash
+cd frontend
+cp .env.example .env.local
+# Edit with your API endpoint (usually http://localhost:5000)
+```
+
+#### Run Locally
+
+**Terminal 1 - Backend**
+```bash
+cd backend
 npm run dev
+# Runs on http://localhost:5000
 ```
 
-This starts the server with hot-reload using nodemon on `http://localhost:5000`
-
-### Production Build
-
+**Terminal 2 - Frontend**
 ```bash
-npm run build
-npm start
+cd frontend
+npm run dev
+# Runs on http://localhost:3000
 ```
 
-### API Testing
-
-Once the server is running, you can test endpoints using:
-
-- **cURL**
-  ```bash
-  curl -X GET http://localhost:5000/api/candidates
-  ```
-
-- **Postman**: Import the API endpoints listed above
-
-- **Thunder Client**: VS Code extension for API testing
-
-## 🧪 Testing
-
-### Run All Tests
-
+#### Database Setup
 ```bash
-npm test
-```
+cd backend
 
-### Run Tests with Coverage
-
-```bash
-npm test -- --coverage
-```
-
-### Test Files
-
-- `src/__tests__/auth.test.ts` - Authentication tests
-- `src/__tests__/candidates.test.ts` - Candidate management tests
-- `src/__tests__/verification.test.ts` - Verification service tests
-
-## 🗄️ Database
-
-### Prisma Setup
-
-The application uses Prisma ORM for database operations.
-
-#### Generate Prisma Client
-
-```bash
-npm run prisma:generate
-```
-
-#### Create Database Migrations
-
-```bash
+# Run migrations
 npm run prisma:migrate
-```
 
-#### Seed Database
-
-```bash
+# Seed sample data
 npm run prisma:seed
-```
 
-### Database Schema
-
-View and modify the database schema in `prisma/schema.prisma`. The schema includes models for:
-
-- User (authentication)
-- Candidate (BGV applicants)
-- Verification (verification records)
-- Report (BGV reports)
-- And more...
-
-### Prisma Studio (GUI)
-
-```bash
+# Open Prisma Studio GUI
 npx prisma studio
 ```
 
-Opens a visual interface to browse and edit database records at `http://localhost:5555`
+#### Run Tests
+```bash
+cd backend
+npm test                      # Run all tests
+npm test -- --coverage       # With coverage report
+```
 
-## 🛠️ Development Guidelines
+## 🔌 API Documentation
 
-### Code Structure
+Complete API documentation is available in [backend/README.md](backend/README.md#-api-endpoints)
 
-- **Controllers**: Handle HTTP requests and responses
-- **Services**: Contain business logic and database operations
-- **Routes**: Define API endpoints and link to controllers
-- **Middleware**: Handle authentication, error handling, logging
-- **Utils**: Reusable utility functions
+### Quick API Test
+```bash
+# Register
+curl -X POST http://localhost:5000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"user@example.com","password":"password123"}'
 
-### Making API Requests with JWT
+# Login
+curl -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"user@example.com","password":"password123"}'
 
-1. Register/Login to get JWT token
-2. Include token in Authorization header:
-   ```
-   Authorization: Bearer <your_jwt_token>
-   ```
+# Get candidates (with JWT token)
+curl -X GET http://localhost:5000/api/candidates \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+## 🏃 Available Commands
+
+### Frontend
+```bash
+cd frontend
+npm run dev       # Start development server
+npm run build     # Build for production
+npm start         # Start production server
+npm run lint      # Run ESLint
+```
+
+### Backend
+```bash
+cd backend
+npm run dev              # Start development with hot-reload
+npm run build           # Build TypeScript
+npm start               # Start production server
+npm test                # Run tests
+npm run prisma:migrate  # Run database migrations
+npm run prisma:seed     # Seed database
+```
+
+## 📚 Documentation
+
+- [Backend Documentation](backend/README.md) - API endpoints, setup, architecture
+- [Frontend Documentation](frontend/README.md) - UI components, setup
+- [Deployment Guide](DEPLOYMENT.md) - Detailed deployment instructions
+
+## 🛡️ Security
+
+- JWT-based authentication
+- Password hashing with bcryptjs
+- CORS protection
+- Rate limiting
+- Helmet.js for HTTP headers
+- Environment variables for sensitive data
+- SQL injection prevention via Prisma
+- HTTPS enforced in production
 
 ## 🤝 Contributing
 
-1. Create a feature branch from `main`
+1. Create a feature branch
    ```bash
-   git checkout -b feature/feature-name
+   git checkout -b feature/your-feature
    ```
 
 2. Commit your changes
    ```bash
-   git commit -m "feat: add feature description"
+   git commit -m "feat: add your feature"
    ```
 
-3. Push to the branch
+3. Push to GitHub
    ```bash
-   git push origin feature/feature-name
+   git push origin feature/your-feature
    ```
 
-4. Create a Pull Request to `main`
+4. Create a Pull Request
 
 ### Commit Message Convention
-
-- `feat:` for new features
-- `fix:` for bug fixes
-- `docs:` for documentation
-- `test:` for testing
-- `refactor:` for code refactoring
-- `style:` for code style changes
-- `chore:` for maintenance tasks
+- `feat:` - New features
+- `fix:` - Bug fixes
+- `docs:` - Documentation
+- `test:` - Tests
+- `refactor:` - Code refactoring
+- `chore:` - Maintenance
 
 ## 📝 License
 
@@ -343,8 +487,11 @@ Aditya Prakash
 
 ## 📞 Support
 
-For issues and questions, please create an issue in the repository.
+- 🐛 [Report a bug](https://github.com/Aditya-Prakash14/BackgroudCheck/issues)
+- 💡 [Request a feature](https://github.com/Aditya-Prakash14/BackgroudCheck/issues)
+- 📧 Contact via GitHub
 
 ---
 
-**Last Updated**: May 2026
+**Last Updated**: May 2026  
+**Status**: ✅ Production Ready for Vercel Deployment
