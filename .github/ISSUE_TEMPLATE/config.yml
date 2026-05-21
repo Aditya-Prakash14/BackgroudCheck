@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: GitHub Discussions
+    url: https://github.com/Aditya-Prakash14/BackgroudCheck/discussions
+    about: Ask questions and discuss ideas
+  - name: Documentation
+    url: https://github.com/Aditya-Prakash14/BackgroudCheck/blob/main/README.md
+    about: Read the project documentation
+  - name: Deployment Guide
+    url: https://github.com/Aditya-Prakash14/BackgroudCheck/blob/main/DEPLOYMENT.md
+    about: Learn how to deploy the application
