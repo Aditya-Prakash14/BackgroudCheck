@@ -17,29 +17,34 @@ const app = express();
 // Security middlewares
 app.use(helmet());
 
-// CORS configuration with multiple origins support
-const allowedOrigins = [
-  config.frontendUrl,
-  'https://backgroud-check-frontend1.vercel.app',
-  'https://backgroud-check-frontend.vercel.app',
-  'http://localhost:3000',
-  'http://localhost:3001',
-  'https://backgroud-check-tiqf-git-main-ap312038-gmailcoms-projects.vercel.app',
-  'https://backgroud-check-tiqf-lzfrlqjd5-ap312038-gmailcoms-projects.vercel.app',
-];
+// CORS configuration - Allow all Vercel preview and production URLs
+const corsOptions = {
+  origin: function (origin: string | undefined, callback: Function) {
+    // Always allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-    credentials: true,
-  })
-);
+    // Allow all Vercel URLs and localhost
+    const vercelDomains = [
+      'backgroud-check.vercel.app',
+      'backgroud-check-frontend1.vercel.app',
+      'backgroud-check-frontend.vercel.app',
+      'localhost',
+      '127.0.0.1',
+    ];
+
+    const isVercelUrl = vercelDomains.some(domain => origin.includes(domain));
+    const isLocalhost = origin.includes('localhost') || origin.includes('127.0.0.1');
+
+    if (isVercelUrl || isLocalhost || origin.includes(config.frontendUrl)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Rate Limiting
