@@ -4,32 +4,19 @@ import { config } from '../config/env';
 
 // URLs are read lazily at call-time so that test environments can override
 // process.env.AADHAAR_API_URL / process.env.PAN_API_URL before invoking the service.
-const getAadhaarApiUrl = () => {
-  const url = process.env.AADHAAR_API_URL || config.aadhaarApiUrl;
-  // Skip localhost URLs in production only (not in tests/dev)
-  if (config.nodeEnv === 'production' && url && url.includes('localhost')) {
-    return null;
-  }
-  return url || null;
-};
+const getAadhaarApiUrl = () =>
+  process.env.AADHAAR_API_URL ||
+  config.aadhaarApiUrl ||
+  'http://localhost:5000/mock-api/aadhaar/verify';
 
-const getPanApiUrl = () => {
-  const url = process.env.PAN_API_URL || config.panApiUrl;
-  // Skip localhost URLs in production only (not in tests/dev)
-  if (config.nodeEnv === 'production' && url && url.includes('localhost')) {
-    return null;
-  }
-  return url || null;
-};
+const getPanApiUrl = () =>
+  process.env.PAN_API_URL ||
+  config.panApiUrl ||
+  'http://localhost:5000/mock-api/pan/verify';
 
 const verifyAadhaarApi = async (aadhaarNumber: string) => {
-  const url = getAadhaarApiUrl();
-  if (!url) {
-    // Auto-pass when API is not configured (production safety)
-    return { status: 'verified', message: 'Aadhaar verification skipped (API not configured)' };
-  }
   try {
-    const { data } = await axios.post(url, { aadhaarNumber }, { timeout: 5000 });
+    const { data } = await axios.post(getAadhaarApiUrl(), { aadhaarNumber });
     return data;
   } catch (err: any) {
     return { status: 'failed', message: 'Connection to Aadhaar service failed' };
@@ -37,13 +24,8 @@ const verifyAadhaarApi = async (aadhaarNumber: string) => {
 };
 
 const verifyPanApi = async (panNumber: string) => {
-  const url = getPanApiUrl();
-  if (!url) {
-    // Auto-pass when API is not configured (production safety)
-    return { status: 'verified', message: 'PAN verification skipped (API not configured)' };
-  }
   try {
-    const { data } = await axios.post(url, { panNumber }, { timeout: 5000 });
+    const { data } = await axios.post(getPanApiUrl(), { panNumber });
     return data;
   } catch (err: any) {
     return { status: 'failed', message: 'Connection to PAN service failed' };
