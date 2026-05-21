@@ -32,6 +32,24 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
+// Root endpoint
+app.get('/', (req, res) => {
+  res.status(200).json({
+    name: 'BGV Platform API',
+    version: '1.0.0',
+    status: 'running',
+    docs: 'See /api/health and /api/* endpoints',
+    endpoints: {
+      auth: '/api/auth',
+      candidates: '/api/candidates',
+      verifications: '/api/verifications',
+      reports: '/api/reports',
+      dashboard: '/api/dashboard',
+      health: '/api/health'
+    }
+  });
+});
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'ok', message: 'API is running' });
