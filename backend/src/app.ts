@@ -24,6 +24,8 @@ const allowedOrigins = [
   'https://backgroud-check-frontend.vercel.app',
   'http://localhost:3000',
   'http://localhost:3001',
+  'https://backgroud-check-tiqf-git-main-ap312038-gmailcoms-projects.vercel.app',
+  'https://backgroud-check-tiqf-lzfrlqjd5-ap312038-gmailcoms-projects.vercel.app',
 ];
 
 app.use(
