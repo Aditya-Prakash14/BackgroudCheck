@@ -1,9 +1,0 @@
-{
-  "version": 2,
-  "buildCommand": "cd backend && npm run build",
-  "installCommand": "cd backend && npm ci",
-  "outputDirectory": "backend/dist",
-  "env": {
-    "NODE_ENV": "production"
-  }
-}
