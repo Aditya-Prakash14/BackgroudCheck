@@ -23,21 +23,28 @@ const corsOptions = {
     // Always allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
 
-    // Allow all Vercel URLs and localhost
-    const vercelDomains = [
+    // Allow all Vercel URLs, localhost, and configured frontend URL
+    const allowedOrigins = [
       'backgroud-check.vercel.app',
+      'backgroud-check-tjp2.vercel.app',
       'backgroud-check-frontend1.vercel.app',
       'backgroud-check-frontend.vercel.app',
+      'bgv-platform.vercel.app',
       'localhost',
       '127.0.0.1',
+      config.frontendUrl,
     ];
 
-    const isVercelUrl = vercelDomains.some(domain => origin.includes(domain));
-    const isLocalhost = origin.includes('localhost') || origin.includes('127.0.0.1');
+    const isAllowed = allowedOrigins.some(allowed => 
+      origin === `https://${allowed}` || 
+      origin === `http://${allowed}` ||
+      origin.includes(allowed)
+    );
 
-    if (isVercelUrl || isLocalhost || origin.includes(config.frontendUrl)) {
+    if (isAllowed) {
       callback(null, true);
     } else {
+      console.warn(`CORS blocked origin: ${origin}`);
       callback(new Error('Not allowed by CORS'));
     }
   },

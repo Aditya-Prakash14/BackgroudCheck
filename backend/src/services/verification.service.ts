@@ -4,30 +4,58 @@ import { config } from '../config/env';
 
 // URLs are read lazily at call-time so that test environments can override
 // process.env.AADHAAR_API_URL / process.env.PAN_API_URL before invoking the service.
-const getAadhaarApiUrl = () =>
-  process.env.AADHAAR_API_URL ||
-  config.aadhaarApiUrl ||
-  'http://localhost:5000/mock-api/aadhaar/verify';
+const getAadhaarApiUrl = () => {
+  const url = process.env.AADHAAR_API_URL ||
+    config.aadhaarApiUrl ||
+    'http://localhost:5001/mock-api/aadhaar/verify';
+  
+  // If URL is relative (starts with /), construct full URL using backend URL
+  if (url.startsWith('/')) {
+    const backendUrl = process.env.NODE_ENV === 'production' 
+      ? `https://${process.env.VERCEL_URL || 'backgroud-check-tjp2.vercel.app'}`
+      : 'http://localhost:5001';
+    return `${backendUrl}${url}`;
+  }
+  
+  return url;
+};
 
-const getPanApiUrl = () =>
-  process.env.PAN_API_URL ||
-  config.panApiUrl ||
-  'http://localhost:5000/mock-api/pan/verify';
+const getPanApiUrl = () => {
+  const url = process.env.PAN_API_URL ||
+    config.panApiUrl ||
+    'http://localhost:5001/mock-api/pan/verify';
+  
+  // If URL is relative (starts with /), construct full URL using backend URL
+  if (url.startsWith('/')) {
+    const backendUrl = process.env.NODE_ENV === 'production' 
+      ? `https://${process.env.VERCEL_URL || 'backgroud-check-tjp2.vercel.app'}`
+      : 'http://localhost:5001';
+    return `${backendUrl}${url}`;
+  }
+  
+  return url;
+};
 
 const verifyAadhaarApi = async (aadhaarNumber: string) => {
   try {
-    const { data } = await axios.post(getAadhaarApiUrl(), { aadhaarNumber });
+    const url = getAadhaarApiUrl();
+    console.log(`[Verification] Calling Aadhaar API: ${url}`);
+    const { data } = await axios.post(url, { aadhaarNumber });
     return data;
   } catch (err: any) {
+    console.error('[Verification] Aadhaar API error:', err.message);
     return { status: 'failed', message: 'Connection to Aadhaar service failed' };
   }
 };
 
 const verifyPanApi = async (panNumber: string) => {
   try {
-    const { data } = await axios.post(getPanApiUrl(), { panNumber });
+    const url = getPanApiUrl();
+    console.log(`[Verification] Calling PAN API: ${url}`);
+    const { data } = await axios.post(url, { panNumber });
     return data;
   } catch (err: any) {
+    console.error('[Verification] PAN API error:', err.message);
     return { status: 'failed', message: 'Connection to PAN service failed' };
   }
 };
