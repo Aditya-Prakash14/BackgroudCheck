@@ -3,11 +3,22 @@ import app from '../app';
 import { prisma } from '../prisma/client';
 
 describe('Auth Integration Tests', () => {
-  const testEmail = `test_${Date.now()}@bgv.com`;
+  let testEmail: string;
   const testPassword = 'Password@123';
 
+  beforeAll(async () => {
+    // Generate unique email with milliseconds precision to avoid conflicts
+    testEmail = `test_${Date.now()}_${Math.random().toString(36).substring(7)}@bgv.com`;
+    // Clean up any existing test user before running tests
+    await prisma.user.deleteMany({
+      where: {
+        email: testEmail,
+      },
+    });
+  });
+
   afterAll(async () => {
-    // Cleanup the database user we created
+    // Final cleanup
     await prisma.user.deleteMany({
       where: {
         email: testEmail,
