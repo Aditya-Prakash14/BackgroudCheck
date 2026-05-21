@@ -16,9 +16,25 @@ const app = express();
 
 // Security middlewares
 app.use(helmet());
+
+// CORS configuration with multiple origins support
+const allowedOrigins = [
+  config.frontendUrl,
+  'https://backgroud-check-frontend1.vercel.app',
+  'https://backgroud-check-frontend.vercel.app',
+  'http://localhost:3000',
+  'http://localhost:3001',
+];
+
 app.use(
   cors({
-    origin: config.frontendUrl,
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
   })
 );
