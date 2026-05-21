@@ -4,7 +4,7 @@ const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL
   ? `${process.env.NEXT_PUBLIC_API_URL}/api`
   : typeof window !== 'undefined' && window.location.origin.includes('vercel')
   ? `https://backgroud-check.vercel.app/api`
-  : 'http://localhost:5000/api';
+  : 'http://localhost:5001/api';
 
 const api = axios.create({
   baseURL: apiBaseUrl,
