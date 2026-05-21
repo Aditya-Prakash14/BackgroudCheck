@@ -32,6 +32,11 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
+// Health check
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'ok', message: 'API is running' });
+});
+
 // Mount APIs
 app.use('/api/auth', authRoutes);
 app.use('/api/candidates', candidateRoutes);
@@ -93,6 +98,15 @@ app.post('/mock-api/pan/verify', (req, res) => {
       message: 'PAN number is invalid or inactive'
     });
   }
+});
+
+// 404 handler for undefined routes
+app.use((req, res) => {
+  res.status(404).json({
+    code: 'NOT_FOUND',
+    message: `Route ${req.method} ${req.path} not found`,
+    path: req.path,
+  });
 });
 
 // Global error handler
