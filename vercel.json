@@ -1,16 +1,19 @@
 {
   "version": 2,
-  "outputDirectory": "frontend/.next",
   "builds": [
     {
       "src": "frontend/package.json",
-      "use": "@vercel/next"
+      "use": "@vercel/next",
+      "config": {
+        "maxLambdaSize": "50mb"
+      }
     },
     {
       "src": "backend/package.json",
       "use": "@vercel/node",
       "config": {
-        "includeFiles": ["backend/prisma/**"]
+        "includeFiles": ["backend/prisma/**"],
+        "maxLambdaSize": "50mb"
       }
     }
   ],
