@@ -4,7 +4,7 @@
   "description": "Background Verification Platform Backend",
   "main": "dist/server.js",
   "scripts": {
-    "build": "tsc",
+    "build": "npm run prisma:generate && tsc",
     "build:all": "npm run build && cd ../frontend && npm run build",
     "start": "node dist/server.js",
     "dev": "nodemon --watch src --ext ts --exec ts-node src/server.ts",
