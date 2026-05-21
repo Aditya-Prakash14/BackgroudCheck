@@ -4,19 +4,27 @@ import { prisma } from '../prisma/client';
 import { maskAadhaar } from '../utils/mask';
 
 export const generateReport = async (candidateId: string, userId: string): Promise<Buffer> => {
-  const candidate = await prisma.candidate.findFirst({
-    where: { id: candidateId, createdById: userId },
-    include: {
-      verificationLogs: true,
-      createdBy: true,
-    },
-  });
+  try {
+    const candidate = await prisma.candidate.findFirst({
+      where: { id: candidateId, createdById: userId },
+      include: {
+        verificationLogs: true,
+        createdBy: true,
+      },
+    });
 
-  if (!candidate) {
-    const error = new Error('Candidate not found') as any;
-    error.status = 404;
-    throw error;
-  }
+    if (!candidate) {
+      const error = new Error('Candidate not found') as any;
+      error.status = 404;
+      throw error;
+    }
+
+    // Check if any verification has been run
+    if (!candidate.verificationLogs || candidate.verificationLogs.length === 0) {
+      const error = new Error('No verification checks have been run for this candidate. Please run Aadhaar and PAN verification first.') as any;
+      error.status = 400;
+      throw error;
+    }
 
   const aadhaarLog = candidate.verificationLogs.find(l => l.verificationType === 'AADHAAR');
   const panLog = candidate.verificationLogs.find(l => l.verificationType === 'PAN');
@@ -213,24 +221,41 @@ export const generateReport = async (candidateId: string, userId: string): Promi
   `;
 
   // Start puppeteer browser instance
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
-  });
+  let browser;
+  try {
+    browser = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu']
+    });
 
-  const page = await browser.newPage();
-  await page.setContent(html, { waitUntil: 'networkidle0' });
-  const pdf = await page.pdf({
-    format: 'A4',
-    printBackground: true,
-    margin: {
-      top: '20px',
-      bottom: '20px',
-      left: '20px',
-      right: '20px'
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: 'networkidle0' });
+    const pdf = await page.pdf({
+      format: 'A4',
+      printBackground: true,
+      margin: {
+        top: '20px',
+        bottom: '20px',
+        left: '20px',
+        right: '20px'
+      }
+    });
+
+    await browser.close();
+    return Buffer.from(pdf);
+  } catch (error) {
+    if (browser) {
+      try {
+        await browser.close();
+      } catch (closeError) {
+        console.error('Error closing browser:', closeError);
+      }
     }
-  });
-
-  await browser.close();
-  return Buffer.from(pdf);
+    
+    console.error('PDF Generation Error:', error);
+    const err = error as any;
+    err.status = 500;
+    err.message = `PDF generation failed: ${err.message || 'Unknown error'}`;
+    throw err;
+  }
 };

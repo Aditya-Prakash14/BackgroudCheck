@@ -99,7 +99,7 @@ export default function CandidateDetailPage() {
 
     try {
       const res = await api.get(`/reports/${candidateId}`, {
-        responseType: 'blob', // Crucial for receiving PDF binary files
+        responseType: 'blob',
       });
 
       // Trigger browser file download
@@ -113,7 +113,9 @@ export default function CandidateDetailPage() {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (err: any) {
-      alert('Failed to generate PDF report. Make sure checks have been run.');
+      const errorMessage = err.response?.data?.error || 'Failed to generate PDF report.';
+      alert(`Error: ${errorMessage}`);
+      console.error('PDF Download Error:', err);
     } finally {
       setDownloading(false);
     }
