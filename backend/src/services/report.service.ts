@@ -5,6 +5,8 @@ import { maskAadhaar } from '../utils/mask';
 
 export const generateReport = async (candidateId: string, userId: string): Promise<Buffer> => {
   try {
+    console.log(`[Report] Starting PDF generation for candidate: ${candidateId}`);
+    
     const candidate = await prisma.candidate.findFirst({
       where: { id: candidateId, createdById: userId },
       include: {
@@ -14,13 +16,17 @@ export const generateReport = async (candidateId: string, userId: string): Promi
     });
 
     if (!candidate) {
+      console.error(`[Report] Candidate not found: ${candidateId}`);
       const error = new Error('Candidate not found') as any;
       error.status = 404;
       throw error;
     }
 
+    console.log(`[Report] Found candidate: ${candidate.fullName}, verification logs: ${candidate.verificationLogs.length}`);
+
     // Check if any verification has been run
     if (!candidate.verificationLogs || candidate.verificationLogs.length === 0) {
+      console.error(`[Report] No verification logs found for candidate: ${candidateId}`);
       const error = new Error('No verification checks have been run for this candidate. Please run Aadhaar and PAN verification first.') as any;
       error.status = 400;
       throw error;
@@ -223,13 +229,30 @@ export const generateReport = async (candidateId: string, userId: string): Promi
   // Start puppeteer browser instance
   let browser;
   try {
+    console.log(`[Report] Launching Puppeteer browser...`);
     browser = await puppeteer.launch({
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu']
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-gpu',
+        '--disable-dev-shm-usage' // Prevents memory issues in serverless
+      ]
     });
 
+    console.log(`[Report] Creating page...`);
     const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: 'networkidle0' });
+    
+    // Set a reasonable viewport
+    await page.setViewport({ width: 1200, height: 800 });
+    
+    console.log(`[Report] Setting content...`);
+    await page.setContent(html, { waitUntil: 'domcontentloaded' }); // Changed from networkidle0 for faster loading
+    
+    // Wait a bit for styling to apply
+    await page.waitForTimeout(500);
+    
+    console.log(`[Report] Generating PDF...`);
     const pdf = await page.pdf({
       format: 'A4',
       printBackground: true,
@@ -242,6 +265,7 @@ export const generateReport = async (candidateId: string, userId: string): Promi
     });
 
     await browser.close();
+    console.log(`[Report] PDF generated successfully, size: ${Buffer.from(pdf).length} bytes`);
     return Buffer.from(pdf);
   } catch (error) {
     if (browser) {
@@ -252,7 +276,7 @@ export const generateReport = async (candidateId: string, userId: string): Promi
       }
     }
     
-    console.error('PDF Generation Error:', error);
+    console.error('[Report] PDF Generation Error:', error);
     const err = error as any;
     err.status = 500;
     err.message = `PDF generation failed: ${err.message || 'Unknown error'}`;
