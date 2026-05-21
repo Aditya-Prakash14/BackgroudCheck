@@ -136,7 +136,7 @@ export default function CandidatesPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 pt-14 md:pt-0">
 
         {/* Action Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-4 sm:p-5 border border-slate-200 rounded-lg shadow-sm"
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-4 sm:p-5 border border-slate-200 rounded-lg shadow-sm">
           <div>
             <h3 className="text-base font-extrabold text-[#0A2240]">Dossier Records Directory</h3>
             <p className="text-xs text-slate-500 font-semibold mt-1">Authorized officers can review identities, perform checks, and download PDF clearance files.</p>
