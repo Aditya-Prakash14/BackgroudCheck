@@ -1,6 +1,10 @@
 {
   "version": 2,
-  "buildCommand": "cd frontend && npm ci && npm run build",
+  "buildCommand": "cd frontend && npm install && npm run build",
   "outputDirectory": "frontend/.next",
-  "installCommand": "npm ci --prefix frontend"
+  "installCommand": "npm install --prefix frontend",
+  "framework": "nextjs",
+  "env": {
+    "NEXT_PUBLIC_API_URL": "https://backgroud-check-tjp2.vercel.app"
+  }
 }
