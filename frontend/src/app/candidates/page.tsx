@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import api from '../../services/api';
@@ -68,8 +68,53 @@ export default function CandidatesPage() {
     };
   }, [search]);
 
+  // Toast Helper - Define before use
+  const showToast = useCallback((type: 'success' | 'error', message: string) => {
+    setToast({ type, message });
+    setTimeout(() => {
+      setToast(null);
+    }, 4000);
+  }, []);
+
   // 3. Fetch candidates on change of page / debouncedSearch
-  const fetchCandidates = () => {
+  useEffect(() => {
+    if (!token) return;
+
+    const controller = new AbortController();
+    let isMounted = true;
+
+    (async () => {
+      try {
+        if (isMounted) setLoading(true);
+        const res = await api.get(
+          `/candidates?page=${page}&limit=8&search=${encodeURIComponent(debouncedSearch)}`,
+          { signal: controller.signal }
+        );
+        if (isMounted) {
+          const { candidates: fetchedCandidates, total, pages } = res.data.data;
+          setCandidates(fetchedCandidates);
+          setTotalItems(total);
+          setTotalPages(pages || 1);
+        }
+      } catch (err) {
+        if (isMounted && !controller.signal.aborted) {
+          console.error('Failed to load candidates', err);
+          showToast('error', 'Could not load candidate list.');
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    })();
+
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
+  }, [token, page, debouncedSearch, showToast]);
+
+  const fetchCandidates = useCallback(() => {
     if (!token) return;
     setLoading(true);
     api.get(`/candidates?page=${page}&limit=8&search=${encodeURIComponent(debouncedSearch)}`)
@@ -86,18 +131,7 @@ export default function CandidatesPage() {
       .finally(() => {
         setLoading(false);
       });
-  };
-
-  useEffect(() => {
-    fetchCandidates();
-  }, [page, debouncedSearch, token]);
-
-  const showToast = (type: 'success' | 'error', message: string) => {
-    setToast({ type, message });
-    setTimeout(() => {
-      setToast(null);
-    }, 4000);
-  };
+  }, [token, page, debouncedSearch, showToast]);
 
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Are you sure you want to delete ${name}'s profile? All verification logs will be deleted permanently.`)) {
@@ -108,8 +142,9 @@ export default function CandidatesPage() {
       await api.delete(`/candidates/${id}`);
       showToast('success', `Candidate ${name} was deleted successfully.`);
       fetchCandidates();
-    } catch (err: any) {
-      showToast('error', err.response?.data?.error || 'Failed to delete candidate.');
+    } catch (err) {
+      const error = err as { response?: { data?: { error?: string } } };
+      showToast('error', error.response?.data?.error || 'Failed to delete candidate.');
     }
   };
 
