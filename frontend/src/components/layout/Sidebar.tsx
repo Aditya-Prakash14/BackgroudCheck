@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore } from '../../store/auth.store';
@@ -8,7 +8,9 @@ import {
   Squares2X2Icon, 
   UsersIcon, 
   ArrowLeftOnRectangleIcon, 
-  BuildingLibraryIcon 
+  BuildingLibraryIcon,
+  Bars3Icon,
+  XMarkIcon
 } from '@heroicons/react/24/solid';
 
 export default function Sidebar() {
@@ -16,6 +18,7 @@ export default function Sidebar() {
   const router = useRouter();
   const logout = useAuthStore((s) => s.logout);
   const user = useAuthStore((s) => s.user);
+  const [isOpen, setIsOpen] = useState(false);
 
   // If on login or register page, do not display the sidebar
   if (pathname === '/login' || pathname === '/register' || pathname === '/') {
@@ -32,8 +35,38 @@ export default function Sidebar() {
     { label: 'Candidate Register', path: '/candidates', icon: UsersIcon },
   ];
 
+  // Mobile Menu Button
+  const MobileMenuButton = () => (
+    <div className="md:hidden fixed top-4 left-4 z-40">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="p-2 bg-[#0A2240] text-white rounded-md hover:bg-[#081B33] transition-colors"
+      >
+        {isOpen ? (
+          <XMarkIcon className="w-6 h-6" />
+        ) : (
+          <Bars3Icon className="w-6 h-6" />
+        )}
+      </button>
+    </div>
+  );
+
   return (
-    <div className="w-64 bg-[#0A2240] border-r border-slate-700 h-screen fixed left-0 top-0 flex flex-col justify-between z-30 shadow-lg text-white">
+    <>
+      <MobileMenuButton />
+      
+      {/* Backdrop for mobile */}
+      {isOpen && (
+        <div
+          className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-20"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <div className={`w-64 bg-[#0A2240] border-r border-slate-700 h-screen fixed left-0 top-0 flex flex-col justify-between z-30 shadow-lg text-white transition-transform duration-300 md:translate-x-0 ${
+        isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+      }`}>
       {/* Brand Header */}
       <div>
         <div className="p-6 border-b border-slate-750 bg-[#081B33]">
@@ -60,6 +93,7 @@ export default function Sidebar() {
               <Link
                 key={item.path}
                 href={item.path}
+                onClick={() => setIsOpen(false)}
                 className={`flex items-center gap-3 px-4 py-3 rounded-md text-xs font-bold tracking-wider uppercase transition-all duration-200 ${
                   isActive
                     ? 'bg-amber-500 text-[#0A2240] shadow-sm font-extrabold border-l-4 border-l-[#0A2240]'
@@ -84,7 +118,10 @@ export default function Sidebar() {
           </div>
         )}
         <button
-          onClick={handleLogout}
+          onClick={() => {
+            handleLogout();
+            setIsOpen(false);
+          }}
           className="w-full flex items-center gap-3 px-4 py-3 rounded-md text-xs font-bold tracking-wider uppercase text-red-400 hover:text-white hover:bg-red-600 transition-all duration-200"
         >
           <ArrowLeftOnRectangleIcon className="w-4 h-4 shrink-0" />
@@ -92,5 +129,6 @@ export default function Sidebar() {
         </button>
       </div>
     </div>
+    </>
   );
 }

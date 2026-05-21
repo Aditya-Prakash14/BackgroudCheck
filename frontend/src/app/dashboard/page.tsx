@@ -56,18 +56,18 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="pl-64 bg-[#F1F5F9] min-h-screen">
+      <div className="bg-[#F1F5F9] min-h-screen md:ml-64">
         <GovHeader title="National Background Verification Portal" subtitle="System Dashboard Overview" />
-        <div className="p-8 space-y-8">
+        <div className="p-6 sm:p-8 space-y-8">
           {/* Stats Grid Skeleton */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6">
             {[...Array(4)].map((_, i) => (
               <div key={i} className="h-28 bg-white border border-slate-200 animate-pulse rounded-lg" />
             ))}
           </div>
 
           {/* Charts & Table Skeleton */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
             <div className="lg:col-span-2 h-96 bg-white border border-slate-200 animate-pulse rounded-lg" />
             <div className="h-96 bg-white border border-slate-200 animate-pulse rounded-lg" />
           </div>
@@ -77,10 +77,10 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="pl-64 min-h-screen bg-[#F1F5F9] pb-12">
+    <div className="min-h-screen bg-[#F1F5F9] pb-12 md:ml-64">
       <GovHeader title="National Background Verification Portal" subtitle="System Dashboard Overview" />
 
-      <div className="max-w-7xl mx-auto px-8 space-y-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 pt-14 md:pt-0">
         
         {/* Government Compliance Warning Box */}
         <div className="bg-blue-50 border-l-4 border-l-[#0A2240] p-4 rounded-r-md shadow-sm">
